@@ -35,21 +35,21 @@ app.get('/api/prices', (req, res) => {
     });
 });
 
-// 查詢 oil_price table 某 provider 的所有資料
+// 查詢 oil_price table 某 product_name 的所有資料
 app.get('/api', (req, res) => {
-    const provider = req.query.provider;
-    if (!provider) return res.status(400).json({ error: '缺少 provider 參數' });
-    db.all('SELECT * FROM oil_price WHERE product_name = ?', [provider], (err, rows) => {
+    const product_name = req.query.product_name;
+    if (!product_name) return res.status(400).json({ error: '缺少 product_name 參數' });
+    db.all('SELECT * FROM oil_price WHERE product_name = ?', [product_name], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
-// POST 查詢 oil_price table 某 provider 的所有資料
+// POST 查詢 oil_price table 某 product_name 的所有資料
 app.post('/api', (req, res) => {
-    const provider = req.body.provider;
-    if (!provider) return res.status(400).json({ error: '缺少 provider 參數' });
-    db.all('SELECT * FROM oil_price WHERE product_name = ?', [provider], (err, rows) => {
+    const product_name = req.body.product_name;
+    if (!product_name) return res.status(400).json({ error: '缺少 product_name 參數' });
+    db.all('SELECT * FROM oil_price WHERE product_name = ?', [product_name], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -62,38 +62,6 @@ app.post('/api/oil/add', (req, res) => {
         return res.status(400).send('缺少必要欄位');
     }
     db.run('INSERT INTO oil_price (adjust_date, product_name, price) VALUES (?, ?, ?)', [adjust_date, product_name, price], function(err) {
-        if (err) return res.status(500).send('新增失敗: ' + err.message);
-        res.send('新增成功');
-    });
-});
-
-// 新增 movie_quotes table（如不存在）
-db.run(`CREATE TABLE IF NOT EXISTS movie_quotes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    provider TEXT NOT NULL,
-    movie_name TEXT NOT NULL,
-    quote TEXT NOT NULL
-);`);
-
-// GET /api/insert 新增一筆電影台詞資料
-app.get('/api/insert', (req, res) => {
-    const { provider, movie_name, quote } = req.query;
-    if (!provider || !movie_name || !quote) {
-        return res.status(400).send('缺少必要欄位');
-    }
-    db.run('INSERT INTO movie_quotes (provider, movie_name, quote) VALUES (?, ?, ?)', [provider, movie_name, quote], function(err) {
-        if (err) return res.status(500).send('新增失敗: ' + err.message);
-        res.send('新增成功');
-    });
-});
-
-// POST /api/add 新增一筆電影台詞資料，回傳純文字
-app.post('/api/add', (req, res) => {
-    const { provider, movie_name, quote } = req.body;
-    if (!provider || !movie_name || !quote) {
-        return res.status(400).send('缺少必要欄位');
-    }
-    db.run('INSERT INTO movie_quotes (provider, movie_name, quote) VALUES (?, ?, ?)', [provider, movie_name, quote], function(err) {
         if (err) return res.status(500).send('新增失敗: ' + err.message);
         res.send('新增成功');
     });
